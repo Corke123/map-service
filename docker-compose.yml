@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  map-service:
+    image: map-service:0.0.1-SNAPSHOT
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - RABBITMQ_LOCATION_EXCHANGE=${RABBITMQ_LOCATION_EXCHANGE}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_LOCATION_QUEUE=${RABBITMQ_LOCATION_QUEUE}
+      - RABBITMQ_LOCATION_ROUTING_KEY=${RABBITMQ_LOCATION_ROUTING_KEY}
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_NOTIFICATION_EXCHANGE=${RABBITMQ_NOTIFICATION_EXCHANGE}
+      - RABBITMQ_NOTIFICATION_QUEUE=${RABBITMQ_NOTIFICATION_QUEUE}
+      - RABBITMQ_NOTIFICATION_ROUTING_KEY=${RABBITMQ_NOTIFICATION_ROUTING_KEY}
+    ports:
+      - '8082:8080'
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  postgres:
+    image: postgis/postgis:latest
+    restart: always
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  db:
+    driver: local
